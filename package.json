@@ -11,6 +11,7 @@
   "dependencies": {
     "bluebird": "^3.1.1",
     "chai": "^3.4.1",
-    "mysql": "^2.10.0"
+    "mysql": "^2.10.0",
+    "node-uuid": "^1.4.7"
   }
 }

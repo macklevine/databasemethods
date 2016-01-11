@@ -13,7 +13,15 @@ Methods.prototype.queryForItemsToSendToSalesforce = function queryForItemsToSend
 				reject(err);
 			} else {
 				connection.release();
-				resolve(results);
+				var idArray = [];
+				for (var i = 0; i < results[1].length; i++){
+					idArray.push(results[1][i].id);
+				}
+				//do some work here to extract all of the ids from the results.
+				resolve({
+					dbClockTime : results[0][0].n,
+					idArray : idArray.toString()
+				});
 			}
 		});
 	});
@@ -27,7 +35,7 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 			//next, add the AND condition so that our procedure only runs on IDs that we specify. Experiment with including
 			//and excluding id '1' in order to verify functionality.
 
-		connection.query("CALL update_lastSentToSalesforce(?, ?, @dbClockTime2)", [dbClockTime, '1, 2, 3, 4, 5, 6'], function(err, rows){
+		connection.query('CALL update_lastSentToSalesforce(?, ?, @dbClockTime2, @idListOut)', [dbClockTime, rowIds], function(err, rows){
 			connection.release();
 			if(err){
 				reject(err);
@@ -54,7 +62,7 @@ Methods.prototype._simulateSendItemsToSalesforce = function(connection, statusTo
 
 Methods.prototype._simulateRowUpdate = function _simulateRowUpdate(connection, statusToMockUpdate){
 	return new Promise(function(resolve, reject){
-		connection.query("UPDATE notification SET notificationStatus = ? WHERE id = 1", [statusToMockUpdate], function(err, rows){
+		connection.query("UPDATE notification SET notificationStatus = ? WHERE id = '17312f31-69c3-4a9f-974a-13a76db97efa'", [statusToMockUpdate], function(err, rows){
 			if(err){
 				connection.release();
 				reject(err);

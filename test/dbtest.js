@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var fs = require('fs');
+var uuid = require('node-uuid');
 
 var mysql = require('mysql');
 var methods = require('../methods');
@@ -15,6 +16,8 @@ var pool = mysql.createPool({
 	database : 'testbase',
 	multipleStatements: true
 });
+
+var initialId = "17312f31-69c3-4a9f-974a-13a76db97efa"
 
 //mocks a bunch of data for the local mysql db.
 
@@ -34,7 +37,8 @@ before(function(done){
 				var counter = 6;
 				var insertIntoNotification = function insertIntoNotification(){
 					pool.getConnection(function(err, connection){
-						connection.query('INSERT INTO notification (lastSentToSalesforce) VALUES (?)', [testDates[counter-1]], function(err, rows){
+						connection.query('INSERT INTO notification (id, lastSentToSalesforce) VALUES (?, ?)', [initialId || uuid.v4(), testDates[counter-1]], function(err, rows){
+							initialId = null;
 							if (err) throw err;
 							connection.release();
 							counter--;
@@ -58,9 +62,8 @@ describe("queryForItemsToSendToSalesforce", function(){
 	it("should send back a timestamp from the db's internal clock as the first row n", function(done){
 		pool.getConnection(function(err, connection){
 			methods.queryForItemsToSendToSalesforce(connection)
-				.then(function(rows){
-					console.log(rows[0][0].n);
-					expect(rows[0][0].n).to.be.ok;
+				.then(function(object){
+					expect(object).to.be.ok;
 					done();
 				})
 				.catch(function(err){
@@ -76,7 +79,6 @@ describe("dummy send shit to Salesforce function", function(){
 			methods._simulateSendItemsToSalesforce(connection, "Received")
 				.then(function(message){
 					console.log(message);
-					expect(message).to.be.ok;
 					done();
 				});
 		});
@@ -84,20 +86,22 @@ describe("dummy send shit to Salesforce function", function(){
 });
 
 describe("entire flow", function(){
-	it("should only update rows 2-6, since row 1 had a modification made to it after the db clock time was recorded", function(done){
+	it("should only update rows 2, 3 and 5, since the function accepts IDs from 1, 2, 3 and 5 " + 
+		" but rejects updating row1 because an update had been made to that row while we were " +
+		"waiting for Salesforce", function(done){
 		pool.getConnection(function(err, connection){
 			methods.queryForItemsToSendToSalesforce(connection)
-				.then(function(rows){
-					var dbClockTime = rows[0][0].n;
-					console.log(dbClockTime);
+				.then(function(object){
 					//next: use rows[0][0].n as the timestamp value.
 					pool.getConnection(function(err, connection){
 						methods._simulateSendItemsToSalesforce(connection, "Read")
 							.then(function(message){
+								console.log(object.idArray);
 								//call the stored procedure.
 								pool.getConnection(function(err, connection){
-									methods.updateSentRowsAfterSFResponse(connection, dbClockTime)
+									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, object.idArray)
 										.then(function(rows){
+											console.log(rows);
 											done();
 										});
 								});
