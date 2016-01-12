@@ -7,7 +7,7 @@ var Methods = function Methods(){};
 
 Methods.prototype.queryForItemsToSendToSalesforce = function queryForItemsToSendToSalesforce(connection){
 	return new Promise(function(resolve, reject){
-		connection.query("SELECT DATE_FORMAT(CURRENT_TIMESTAMP(3), '%Y-%m-%d %H:%i:%s.%f') AS n; SELECT * from notification AS n WHERE n.lastModifiedTime > n.lastSentToSalesforce", function(err, results){
+		connection.query("SELECT DATE_FORMAT(CURRENT_TIMESTAMP(3), '%Y-%m-%d %H:%i:%s.%f') AS n; SELECT * from notification WHERE lastModifiedTime > (SELECT MAX(lastSentToSalesforce))", function(err, results){
 			if (err){
 				connection.release();
 				reject(err);
@@ -35,7 +35,7 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 			//next, add the AND condition so that our procedure only runs on IDs that we specify. Experiment with including
 			//and excluding id '1' in order to verify functionality.
 
-		connection.query('CALL update_lastSentToSalesforce(?, ?, @dbClockTime2, @idListOut)', [dbClockTime, rowIds], function(err, rows){
+		connection.query('CALL update_lastSentToSalesforce(?, ?, @rowsChanged)', [dbClockTime, rowIds], function(err, rows){
 			connection.release();
 			if(err){
 				reject(err);

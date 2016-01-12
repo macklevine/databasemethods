@@ -78,7 +78,6 @@ describe("dummy send shit to Salesforce function", function(){
 		pool.getConnection(function(err, connection){
 			methods._simulateSendItemsToSalesforce(connection, "Received")
 				.then(function(message){
-					console.log(message);
 					done();
 				});
 		});
@@ -96,12 +95,11 @@ describe("entire flow", function(){
 					pool.getConnection(function(err, connection){
 						methods._simulateSendItemsToSalesforce(connection, "Read")
 							.then(function(message){
-								console.log(object.idArray);
 								//call the stored procedure.
 								pool.getConnection(function(err, connection){
 									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, object.idArray)
 										.then(function(rows){
-											console.log(rows);
+											expect(rows[0][0].r).to.equal(3);
 											done();
 										});
 								});

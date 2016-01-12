@@ -5,9 +5,9 @@ DELIMITER $$
 CREATE PROCEDURE update_lastSentToSalesforce (
 	dbClockTime VARCHAR(40),
 	idList VARCHAR(1000),
-	OUT dbClockTime2 VARCHAR(40),
-	OUT idListOut VARCHAR(1000)
-	-- is it possible to have a second OUT variable so we can figure out what idList looks like internally?
+	OUT rowsChanged INT
+	-- OUT dbClockTime2 VARCHAR(40),
+	-- OUT idListOut VARCHAR(1000)
 )
 BEGIN
 	DECLARE dbClockTimeParsed TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
@@ -25,12 +25,8 @@ BEGIN
 	WHERE n.lastModifiedTime <= dbClockTimeParsed AND FIND_IN_SET(n.id, idList);
 
 
-	-- try FIND_IN_SET above.
-	-- n.id IN (idList);
-
-	SET dbClockTime2 = DATE_FORMAT(dbClockTimeParsed, '%Y-%m-%d %H:%i:%s.%f');
-	SET idListOut = idList;
-	SELECT dbClockTime2 AS q, idListOut AS r;
+	SET rowsChanged = ROW_COUNT();
+	SELECT rowsChanged AS r;
 
 END;
 $$
