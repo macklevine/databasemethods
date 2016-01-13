@@ -1,8 +1,9 @@
-DROP PROCEDURE IF EXISTS update_lastSentToSalesforce; 
+DROP PROCEDURE IF EXISTS sp_notification_bulk_update; 
+DROP PROCEDURE IF EXISTS sp_notification_bulk_query;
 
 DELIMITER $$
 
-CREATE PROCEDURE update_lastSentToSalesforce (
+CREATE PROCEDURE sp_notification_bulk_update (
 	dbClockTime VARCHAR(40),
 	idList VARCHAR(1000),
 	OUT rowsChanged INT
@@ -32,7 +33,7 @@ END;
 
 $$
 
-CREATE PROCEDURE queryForItemsToSendToSalesforce (
+CREATE PROCEDURE sp_notification_bulk_query (
 )
 BEGIN
 	SELECT DATE_FORMAT(CURRENT_TIMESTAMP(3), '%Y-%m-%d %H:%i:%s.%f') AS n;
