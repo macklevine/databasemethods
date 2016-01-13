@@ -29,5 +29,15 @@ BEGIN
 	SELECT rowsChanged AS r;
 
 END;
+
+$$
+
+CREATE PROCEDURE queryForItemsToSendToSalesforce (
+)
+BEGIN
+	SELECT DATE_FORMAT(CURRENT_TIMESTAMP(3), '%Y-%m-%d %H:%i:%s.%f') AS n;
+	SELECT * from notification WHERE lastModifiedTime > (SELECT MAX(lastSentToSalesforce));
+END;
+
 $$
 DELIMITER ;

@@ -7,7 +7,7 @@ var Methods = function Methods(){};
 
 Methods.prototype.queryForItemsToSendToSalesforce = function queryForItemsToSendToSalesforce(connection){
 	return new Promise(function(resolve, reject){
-		connection.query("SELECT DATE_FORMAT(CURRENT_TIMESTAMP(3), '%Y-%m-%d %H:%i:%s.%f') AS n; SELECT * from notification WHERE lastModifiedTime > (SELECT MAX(lastSentToSalesforce))", function(err, results){
+		connection.query("CALL queryForItemsToSendToSalesforce()", function(err, results){
 			if (err){
 				connection.release();
 				reject(err);
