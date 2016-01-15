@@ -46,6 +46,28 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 	});
 };
 
+Methods.prototype.prepareStatementFromSfResponse = function prepareStatementFromSfResponse(sfResponse){
+	var preparedStatementChunk = "refId = CASE ";
+	for (var i = 0; i < sfResponse.sfNotificationIds.length; i++){
+		preparedStatementChunk += "WHEN id = '" + sfResponse.sfNotificationIds[i].notificationId + "' AND refId = NULL THEN '" + sfResponse.sfNotificationIds[i].sfNotificationId + "' "; 
+	};
+	preparedStatementChunk += "END";
+					// {
+					// 	"sfNotificationIds": [
+					// 		{
+					// 			"sfNotificationId": "a0F3B00000008H1UAI",
+					// 			"notificationId": "16a14b1d-b497-4320-8439-84bd868dfd7d"
+					// 		},
+					// 	]
+					// }
+					
+					// refId= CASE 
+					// 	WHEN id = notificationId[0] AND refId = NULL THEN sfNotificationId[0]
+					// 	WHEN id = notificationId[1] AND refId = NULL THEN sfNotificationId[1]	
+     //           		END
+     return preparedStatementChunk;
+};
+
 Methods.prototype._simulateSendItemsToSalesforce = function(connection, statusToMockUpdate){
 	var self = this;
 	//a mock function that simulates a delay. To be replaced with Parikshit's actual function later.

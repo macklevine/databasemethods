@@ -7,6 +7,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_notification_bulk_update (
 	dbClockTime VARCHAR(40),
 	idList VARCHAR(1000),
+	statementChunk VARCHAR(5000),
 	OUT rowsChanged INT
 )
 BEGIN
@@ -19,7 +20,25 @@ BEGIN
 		SET dbClockTimeParsed = TIMESTAMP(dbClockTime);
 	END IF;
 
-	SET @s = 'UPDATE notification AS n SET n.lastSentToSalesforce = ?, n.lastModifiedTime = ? WHERE n.lastModifiedTime <= ? AND FIND_IN_SET(n.id, ?)';
+	SET @s = 'UPDATE notification AS n SET n.lastSentToSalesforce = ?, n.lastModifiedTime = ?, ? WHERE n.lastModifiedTime <= ? AND FIND_IN_SET(n.id, ?)';
+
+
+					-- {
+					-- 	"sfNotificationIds": [
+					-- 		{
+					-- 			"sfNotificationId": "a0F3B00000008H1UAI",
+					-- 			"notificationId": "16a14b1d-b497-4320-8439-84bd868dfd7d"
+					-- 		}
+					-- 	]
+					-- }
+					
+					-- refId= CASE 
+					-- 	WHEN id = notificationId[0] AND refId = NULL AND lastModifiedTime > dbClockTime THEN sfNotificationId[0]
+					-- 	WHEN id = notificationId[1] AND refId = NULL AND lastModifiedTime > dbClockTime THEN sfNotificationId[1]	
+     --           		END
+
+
+
 
 	-- UPDATE notification AS n
 	-- SET n.lastSentToSalesforce = dbClockTimeParsed,
@@ -27,6 +46,7 @@ BEGIN
 	-- WHERE n.lastModifiedTime <= dbClockTimeParsed AND FIND_IN_SET(n.id, idList);
 	SET @dbClockTimeParsed = dbClockTimeParsed;
 	SET @idList = idList;
+	SET @statementChunk = statementChunk;
 
 	PREPARE stmt FROM @s;
 	EXECUTE stmt USING @dbClockTimeParsed, @dbClockTimeParsed, @dbClockTimeParsed, @idList;

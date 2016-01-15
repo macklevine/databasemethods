@@ -64,6 +64,25 @@ before(function(done){
 	});
 });
 
+describe("prepareStatementFromSfResponse method", function(){
+	it("should prepare a dynamic sql sub-statement from an sfResponse object", function(done){
+		var sfResponse = {
+			"sfNotificationIds": [
+				{
+					"sfNotificationId": "a0F3B00000008H1UAI",
+					"notificationId": "16a14b1d-b497-4320-8439-84bd868dfd7d"
+				},
+				{
+					"sfNotificationId": "a0F3B00000008H1UAQ",
+					"notificationId": "16a14b1d-b497-4320-8439-84bd868dfd7r"
+				}
+			]
+		};
+		var returnedValue = methods.prepareStatementFromSfResponse(sfResponse);
+		expect(returnedValue).to.equal("refId = CASE WHEN id = '16a14b1d-b497-4320-8439-84bd868dfd7d' AND refId = NULL THEN 'a0F3B00000008H1UAI' WHEN id = '16a14b1d-b497-4320-8439-84bd868dfd7r' AND refId = NULL THEN 'a0F3B00000008H1UAQ' END");
+		done();
+	});
+});
 
 
 describe("queryForItemsToSendToSalesforce", function(){
