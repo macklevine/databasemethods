@@ -27,17 +27,25 @@ before(function(done){
 			connection.query(data, function(err, rows){
 				connection.release();
 				var testDates = [
-					"2019-01-06 17:33:38.475",
+					"2015-01-06 17:33:38.475",
 					"1980-01-06 17:33:38.475",
-					"2018-01-06 17:33:38.475",
+					"2015-01-06 17:33:38.475",
 					"1970-01-06 18:33:38.475",
 					"1970-01-06 17:33:38.475",
 					"1970-01-06 16:33:38.475"
 				];
+				var testRefIds = [
+					"123456781234567890",
+					null,
+					"123456781234567892",
+					null,
+					null,
+					"123456781234567895"
+				];
 				var counter = 6;
 				var insertIntoNotification = function insertIntoNotification(){
 					pool.getConnection(function(err, connection){
-						connection.query('INSERT INTO notification (id, lastSentToSalesforce) VALUES (?, ?)', [initialId || uuid.v4(), testDates[counter-1]], function(err, rows){
+						connection.query('INSERT INTO notification (id, lastSentToSalesforce, refId) VALUES (?, ?, ?)', [initialId || uuid.v4(), testDates[counter-1], testRefIds[counter-1]], function(err, rows){
 							initialId = null;
 							if (err) throw err;
 							connection.release();
@@ -85,7 +93,7 @@ describe("dummy send shit to Salesforce function", function(){
 });
 
 describe("entire flow", function(){
-	it("should only update rows 2, 3 and 5, since the function accepts IDs from 1, 2, 3 and 5 " + 
+	it("should only update rows 2, 3, 4, 5, and 6 since the function accepts IDs from 1, 2, 3 and 5 " + 
 		" but rejects updating row1 because an update had been made to that row while we were " +
 		"waiting for Salesforce", function(done){
 		pool.getConnection(function(err, connection){
@@ -99,7 +107,7 @@ describe("entire flow", function(){
 								pool.getConnection(function(err, connection){
 									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, object.idArray)
 										.then(function(rows){
-											expect(rows[0][0].r).to.equal(3);
+											expect(rows[0][0].r).to.equal(5);
 											done();
 										});
 								});
