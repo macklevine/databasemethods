@@ -37,7 +37,20 @@ CREATE PROCEDURE sp_notification_bulk_query (
 )
 BEGIN
 	SELECT DATE_FORMAT(CURRENT_TIMESTAMP(3), '%Y-%m-%d %H:%i:%s.%f') AS n;
-	SELECT * from notification WHERE lastModifiedTime > (SELECT MAX(lastSentToSalesforce));
+	SELECT * from notification WHERE lastModifiedTime > (SELECT MAX(lastSentToSalesforce)) LIMIT 3;
+END;
+
+$$
+
+CREATE PROCEDURE update_experimental (
+	updateSalesforceTime VARCHAR(80)
+)
+BEGIN
+
+    IF updateSalesforceTime = "true" THEN 
+    	UPDATE notification SET lastSentToSalesforce = CURRENT_TIMESTAMP;
+    END IF;
+
 END;
 
 $$
