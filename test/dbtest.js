@@ -87,7 +87,7 @@ describe("prepareStatementFromSfResponse method", function(){
 			]
 		};
 		var returnedValue = methods.prepareStatementFromSfResponse(sfResponse);
-		expect(returnedValue).to.equal("refId = CASE WHEN id = '16a14b1d-b497-4320-8439-84bd868dfd7d' AND refId = NULL THEN 'a0F3B00000008H1UAI' WHEN id = '16a14b1d-b497-4320-8439-84bd868dfd7r' AND refId = NULL THEN 'a0F3B00000008H1UAQ' END");
+		expect(returnedValue).to.equal("n.refId = CASE WHEN n.id = '16a14b1d-b497-4320-8439-84bd868dfd7d' AND n.refId = NULL THEN 'a0F3B00000008H1UAI' WHEN n.id = '16a14b1d-b497-4320-8439-84bd868dfd7r' AND n.refId = NULL THEN 'a0F3B00000008H1UAQ' ELSE n.refId END");
 		done();
 	});
 });
@@ -123,16 +123,50 @@ describe("entire flow", function(){
 	it("should only update rows 2, 3, 4, 5, and 6 since the function accepts IDs from 1, 2, 3 and 5 " + 
 		" but rejects updating row1 because an update had been made to that row while we were " +
 		"waiting for Salesforce", function(done){
+
+		var dummySfResponse = {
+			"sfNotificationIds": [
+				{
+					"sfNotificationId": "SHOULD NOT SHOW UP",
+					"notificationId": "17312f31-69c3-4a9f-974a-13a76db97efa"
+				},
+				{
+					"sfNotificationId": "123456789012345678",
+					"notificationId": "b169fb98-3de3-4c0a-9888-bd9c97adff07"
+				},
+				{
+					"sfNotificationId": "should show up too",
+					"notificationId": "42bab995-1fdd-4a10-a116-ef74b5ff0492"
+				},
+				{
+					"sfNotificationId": "SHOULD NOT SHOW UP",
+					"notificationId": "5989724e-a847-45c6-9d63-100e5da6a81a"
+				},
+				{
+					"sfNotificationId": "should show up TOO",
+					"notificationId": "af488487-fccc-4d13-a102-5f394c996f98"
+				},
+				{
+					"sfNotificationId": "SHOULD NOT SHOW UP",
+					"notificationId": "e553fa8b-a78b-4458-9dec-4a380e3c70a7"
+				}
+			]
+		};
+
+		var statementChunk = methods.prepareStatementFromSfResponse(dummySfResponse);
+		console.log(statementChunk);
+
 		pool.getConnection(function(err, connection){
 			methods.queryForItemsToSendToSalesforce(connection)
 				.then(function(object){
-					//next: use rows[0][0].n as the timestamp value.
 					pool.getConnection(function(err, connection){
 						methods._simulateSendItemsToSalesforce(connection, "Read")
 							.then(function(message){
-								//call the stored procedure.
 								pool.getConnection(function(err, connection){
-									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, object.idArray)
+
+
+
+									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, object.idArray, statementChunk)
 										.then(function(rows){
 											expect(rows[0][0].r).to.equal(5);
 											done();

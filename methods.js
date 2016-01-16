@@ -27,7 +27,7 @@ Methods.prototype.queryForItemsToSendToSalesforce = function queryForItemsToSend
 	});
 };
 
-Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSFResponse(connection, dbClockTime, rowIds){
+Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSFResponse(connection, dbClockTime, rowIds, statementChunk){
 	return new Promise(function(resolve, reject){
 
 		//rowIds must take the form of a string that looks like '1, 2, 3'
@@ -35,7 +35,7 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 			//next, add the AND condition so that our procedure only runs on IDs that we specify. Experiment with including
 			//and excluding id '1' in order to verify functionality.
 
-		connection.query('CALL sp_notification_bulk_update(?, ?, @rowsChanged)', [dbClockTime, rowIds], function(err, rows){
+		connection.query('CALL sp_notification_bulk_update(?, ?, ?, @rowsChanged)', [dbClockTime, rowIds, statementChunk], function(err, rows){
 			connection.release();
 			if(err){
 				reject(err);
@@ -47,11 +47,11 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 };
 
 Methods.prototype.prepareStatementFromSfResponse = function prepareStatementFromSfResponse(sfResponse){
-	var preparedStatementChunk = "refId = CASE ";
+	var preparedStatementChunk = "n.refId = CASE ";
 	for (var i = 0; i < sfResponse.sfNotificationIds.length; i++){
-		preparedStatementChunk += "WHEN id = '" + sfResponse.sfNotificationIds[i].notificationId + "' AND refId = NULL THEN '" + sfResponse.sfNotificationIds[i].sfNotificationId + "' "; 
+		preparedStatementChunk += "WHEN n.id = '" + sfResponse.sfNotificationIds[i].notificationId + "' THEN COALESCE(n.refId, '" + sfResponse.sfNotificationIds[i].sfNotificationId + "') "; 
 	};
-	preparedStatementChunk += "END";
+	preparedStatementChunk += "ELSE n.refId END";
 					// {
 					// 	"sfNotificationIds": [
 					// 		{
