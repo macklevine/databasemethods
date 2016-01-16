@@ -154,11 +154,13 @@ describe("entire flow", function(){
 		};
 
 		var statementChunk = methods.prepareStatementFromSfResponse(dummySfResponse);
-		console.log(statementChunk);
-
 		pool.getConnection(function(err, connection){
 			methods.queryForItemsToSendToSalesforce(connection)
 				.then(function(object){
+					//TODO: pop id 5989724e-a847-45c6-9d63-100e5da6a81a out of idArray, just to see if the FIND_IN_SET
+					//feature of the stored procedure actually works.
+
+
 					pool.getConnection(function(err, connection){
 						methods._simulateSendItemsToSalesforce(connection, "Read")
 							.then(function(message){

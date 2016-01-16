@@ -35,11 +35,13 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 			//next, add the AND condition so that our procedure only runs on IDs that we specify. Experiment with including
 			//and excluding id '1' in order to verify functionality.
 
-		connection.query('CALL sp_notification_bulk_update(?, ?, ?, @rowsChanged)', [dbClockTime, rowIds, statementChunk], function(err, rows){
+		connection.query('CALL sp_notification_bulk_update(?, ?, ?, @rowsChanged, @completeStatement)', [dbClockTime, rowIds, statementChunk], function(err, rows){
 			connection.release();
 			if(err){
 				reject(err);
 			} else {
+				var fs = require('fs');
+				fs.writeFile(__dirname + "/testlog.txt", JSON.stringify(rows, " ", "\t"), function(){});
 				resolve(rows);
 			}
 		});
@@ -52,19 +54,6 @@ Methods.prototype.prepareStatementFromSfResponse = function prepareStatementFrom
 		preparedStatementChunk += "WHEN n.id = '" + sfResponse.sfNotificationIds[i].notificationId + "' THEN COALESCE(n.refId, '" + sfResponse.sfNotificationIds[i].sfNotificationId + "') "; 
 	};
 	preparedStatementChunk += "ELSE n.refId END";
-					// {
-					// 	"sfNotificationIds": [
-					// 		{
-					// 			"sfNotificationId": "a0F3B00000008H1UAI",
-					// 			"notificationId": "16a14b1d-b497-4320-8439-84bd868dfd7d"
-					// 		},
-					// 	]
-					// }
-					
-					// refId= CASE 
-					// 	WHEN id = notificationId[0] AND refId = NULL THEN sfNotificationId[0]
-					// 	WHEN id = notificationId[1] AND refId = NULL THEN sfNotificationId[1]	
-     //           		END
      return preparedStatementChunk;
 };
 

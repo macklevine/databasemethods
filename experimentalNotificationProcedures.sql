@@ -8,7 +8,8 @@ CREATE PROCEDURE sp_notification_bulk_update (
 	dbClockTime VARCHAR(40),
 	idList VARCHAR(1000),
 	statementChunk VARCHAR(5000),
-	OUT rowsChanged INT
+	OUT rowsChanged INT,
+	OUT completeStatement VARCHAR(5000)
 )
 BEGIN
 	DECLARE dbClockTimeParsed TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
@@ -34,7 +35,9 @@ BEGIN
 	EXECUTE stmt USING @dbClockTimeParsed, @dbClockTimeParsed, @dbClockTimeParsed, @idList;
 
 	SET rowsChanged = ROW_COUNT();
-	SELECT rowsChanged AS r;
+	SET completeStatement = @s;
+
+	SELECT rowsChanged AS r, completeStatement AS n;
 
 END;
 

@@ -1,0 +1,18 @@
+[
+	[
+		{
+			"r": 5,
+			"n": "UPDATE notification AS n SET n.lastSentToSalesforce = ?, n.lastModifiedTime = ?, n.refId = CASE WHEN n.id = '17312f31-69c3-4a9f-974a-13a76db97efa' THEN COALESCE(n.refId, 'SHOULD NOT SHOW UP') WHEN n.id = 'b169fb98-3de3-4c0a-9888-bd9c97adff07' THEN COALESCE(n.refId, 'should show up____') WHEN n.id = '42bab995-1fdd-4a10-a116-ef74b5ff0492' THEN COALESCE(n.refId, 'SHOULD NOT SHOW UP') WHEN n.id = '5989724e-a847-45c6-9d63-100e5da6a81a' THEN COALESCE(n.refId, 'should show up too') WHEN n.id = 'af488487-fccc-4d13-a102-5f394c996f98' THEN COALESCE(n.refId, 'should show up TOO') WHEN n.id = 'e553fa8b-a78b-4458-9dec-4a380e3c70a7' THEN COALESCE(n.refId, 'SHOULD NOT SHOW UP') ELSE n.refId END WHERE n.lastModifiedTime <= ? AND FIND_IN_SET(n.id, ?)"
+		}
+	],
+	{
+		"fieldCount": 0,
+		"affectedRows": 0,
+		"insertId": 0,
+		"serverStatus": 34,
+		"warningCount": 0,
+		"message": "",
+		"protocol41": true,
+		"changedRows": 0
+	}
+]
