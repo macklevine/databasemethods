@@ -34,6 +34,14 @@ before(function(done){
 					"1970-01-06 17:33:38.475",
 					"1970-01-06 16:33:38.475"
 				];
+				var testIds = [
+					"17312f31-69c3-4a9f-974a-13a76db97efa",
+					"b169fb98-3de3-4c0a-9888-bd9c97adff07",
+					"42bab995-1fdd-4a10-a116-ef74b5ff0492",
+					"5989724e-a847-45c6-9d63-100e5da6a81a",
+					"af488487-fccc-4d13-a102-5f394c996f98",
+					"e553fa8b-a78b-4458-9dec-4a380e3c70a7"
+				];
 				var testRefIds = [
 					"123456781234567890",
 					null,
@@ -45,7 +53,7 @@ before(function(done){
 				var counter = 6;
 				var insertIntoNotification = function insertIntoNotification(){
 					pool.getConnection(function(err, connection){
-						connection.query('INSERT INTO notification (id, lastSentToSalesforce, refId) VALUES (?, ?, ?)', [initialId || uuid.v4(), testDates[counter-1], testRefIds[counter-1]], function(err, rows){
+						connection.query('INSERT INTO notification (id, lastSentToSalesforce, refId) VALUES (?, ?, ?)', [testIds[counter-1], testDates[counter-1], testRefIds[counter-1]], function(err, rows){
 							initialId = null;
 							if (err) throw err;
 							connection.release();
