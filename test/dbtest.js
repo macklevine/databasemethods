@@ -87,7 +87,7 @@ describe("prepareStatementFromSfResponse method", function(){
 			]
 		};
 		var returnedValue = methods.prepareStatementFromSfResponse(sfResponse);
-		expect(returnedValue).to.equal("n.refId = CASE WHEN n.id = '16a14b1d-b497-4320-8439-84bd868dfd7d' AND n.refId = NULL THEN 'a0F3B00000008H1UAI' WHEN n.id = '16a14b1d-b497-4320-8439-84bd868dfd7r' AND n.refId = NULL THEN 'a0F3B00000008H1UAQ' ELSE n.refId END");
+		expect(returnedValue).to.equal("n.refId = CASE WHEN n.id = '16a14b1d-b497-4320-8439-84bd868dfd7d' THEN COALESCE(n.refId, 'a0F3B00000008H1UAI') WHEN n.id = '16a14b1d-b497-4320-8439-84bd868dfd7r' THEN COALESCE(n.refId, 'a0F3B00000008H1UAQ') ELSE n.refId END");
 		done();
 	});
 });
@@ -131,15 +131,15 @@ describe("entire flow", function(){
 					"notificationId": "17312f31-69c3-4a9f-974a-13a76db97efa"
 				},
 				{
-					"sfNotificationId": "123456789012345678",
+					"sfNotificationId": "should show up____",
 					"notificationId": "b169fb98-3de3-4c0a-9888-bd9c97adff07"
 				},
 				{
-					"sfNotificationId": "should show up too",
+					"sfNotificationId": "SHOULD NOT SHOW UP",
 					"notificationId": "42bab995-1fdd-4a10-a116-ef74b5ff0492"
 				},
 				{
-					"sfNotificationId": "SHOULD NOT SHOW UP",
+					"sfNotificationId": "should show up too",
 					"notificationId": "5989724e-a847-45c6-9d63-100e5da6a81a"
 				},
 				{
