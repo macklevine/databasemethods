@@ -157,6 +157,13 @@ describe("entire flow", function(){
 		pool.getConnection(function(err, connection){
 			methods.queryForItemsToSendToSalesforce(connection)
 				.then(function(object){
+					console.log(object.idArray);
+					var modifiedArray = object.idArray.split(",");
+					console.log(modifiedArray.length);
+					modifiedArray.splice(4, 1);
+					modifiedArray = modifiedArray.join(",");
+					console.log(modifiedArray);
+					//figure out how to slice it.
 					//TODO: pop id 5989724e-a847-45c6-9d63-100e5da6a81a out of idArray, just to see if the FIND_IN_SET
 					//feature of the stored procedure actually works.
 
@@ -168,9 +175,9 @@ describe("entire flow", function(){
 
 
 
-									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, object.idArray, statementChunk)
+									methods.updateSentRowsAfterSFResponse(connection, object.dbClockTime, modifiedArray, statementChunk)
 										.then(function(rows){
-											expect(rows[0][0].r).to.equal(5);
+											expect(rows[0][0].r).to.equal(4);
 											done();
 										});
 								});

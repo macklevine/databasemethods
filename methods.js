@@ -35,7 +35,7 @@ Methods.prototype.updateSentRowsAfterSFResponse = function updateSentRowsAfterSF
 			//next, add the AND condition so that our procedure only runs on IDs that we specify. Experiment with including
 			//and excluding id '1' in order to verify functionality.
 
-		connection.query('CALL sp_notification_bulk_update(?, ?, ?, @rowsChanged, @completeStatement)', [dbClockTime, rowIds, statementChunk], function(err, rows){
+		connection.query('CALL sp_notification_bulk_update(?, ?, ?, @rowsChanged)', [dbClockTime, rowIds, statementChunk], function(err, rows){
 			connection.release();
 			if(err){
 				reject(err);
